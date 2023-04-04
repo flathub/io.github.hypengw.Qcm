@@ -16,7 +16,9 @@ finish-args:
 modules:
   - name: Qcm
     buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=RelWithDebInfo
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: d3a9fb68183c0a237d0f364b6d9b1cec2d9af06f
+        commit: 19323a18b23db8a7832f35ab02e861f7513d20cb
