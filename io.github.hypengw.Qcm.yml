@@ -14,6 +14,30 @@ finish-args:
   - --own-name=org.mpris.MediaPlayer2.Qcm
 
 modules:
+  - name: ffmpeg
+    cleanup:
+      - /include
+      - /lib/pkgconfig
+      - /share/ffmpeg/examples
+    config-opts:
+      - --disable-debug
+      - --disable-doc
+      - --disable-programs
+      - --disable-static
+      - --enable-gnutls
+      - --enable-gpl
+      - --enable-shared
+      - --enable-version3
+      - --enable-libaom
+      - --enable-libfreetype
+      - --enable-libmp3lame
+      - --enable-libopus
+      - --enable-libtheora
+      - --enable-libvpx
+    sources:
+      - type: git
+        url: https://github.com/FFmpeg/FFmpeg.git
+        tag: n6.0
   - name: Qcm
     buildsystem: cmake-ninja
     config-opts:
