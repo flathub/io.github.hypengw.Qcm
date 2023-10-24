@@ -1,6 +1,6 @@
 app-id: io.github.hypengw.Qcm
 runtime: org.kde.Platform
-runtime-version: '6.5'
+runtime-version: '6.6'
 sdk: org.kde.Sdk
 command: Qcm
 finish-args:
@@ -14,31 +14,6 @@ finish-args:
   - --own-name=org.mpris.MediaPlayer2.Qcm
 
 modules:
-  - name: ffmpeg
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-      - /share/ffmpeg/examples
-    config-opts:
-      - --disable-debug
-      - --disable-doc
-      - --disable-programs
-      - --disable-static
-      - --enable-gnutls
-      - --enable-gpl
-      - --enable-shared
-      - --enable-version3
-      - --enable-libaom
-      - --enable-libfreetype
-      - --enable-libmp3lame
-      - --enable-libopus
-      - --enable-libtheora
-      - --enable-libvpx
-    sources:
-      - type: git
-        url: https://github.com/FFmpeg/FFmpeg.git
-        tag: n6.0
-
   - name: Qcm
     buildsystem: cmake-ninja
     config-opts:
@@ -46,4 +21,4 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: ff49721a9e1b3dd89f1d9514f482f61673e28eb4
+        commit: d2ec4db2bb73288004fc9329023be2c194f86afe
