@@ -1,6 +1,6 @@
 app-id: io.github.hypengw.Qcm
 runtime: org.kde.Platform
-runtime-version: '6.6'
+runtime-version: '6.7'
 sdk: org.kde.Sdk
 command: Qcm
 finish-args:
@@ -21,4 +21,4 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: 7dc9d1c53da43221029a726f1077f3a943d26187
+        commit: 3bab81fdcd37f9ea57a28cb1b0cd795b991c07f6
