@@ -22,4 +22,4 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: 3e32aade4e68bc6c8a578221ca9e918b7d713aea
+        commit: a4ddfc3ba1b53c2aea04f9acefa4996ad49d5b55
