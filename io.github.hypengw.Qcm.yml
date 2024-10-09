@@ -18,7 +18,8 @@ modules:
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - -DQML_INSTALL_DIR=/app/lib/qml
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: 06a01ba9a12a7013ba3fc4622ba08a150dd153e7
+        commit: 3e32aade4e68bc6c8a578221ca9e918b7d713aea
