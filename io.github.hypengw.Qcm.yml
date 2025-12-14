@@ -1,7 +1,10 @@
 app-id: io.github.hypengw.Qcm
 runtime: org.kde.Platform
-runtime-version: '6.9'
+runtime-version: '6.10'
 sdk: org.kde.Sdk
+sdk-extensions: 
+  - org.freedesktop.Sdk.Extension.llvm20
+  - org.freedesktop.Sdk.Extension.rust-stable
 command: Qcm
 finish-args:
   - --socket=fallback-x11
@@ -14,12 +17,96 @@ finish-args:
   - --own-name=org.mpris.MediaPlayer2.Qcm
 
 modules:
+  - name: protobuf
+    buildsystem: cmake-ninja
+    builddir: true
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=None
+      - -DBUILD_SHARED_LIBS=ON
+      - -Dprotobuf_BUILD_TESTS=OFF
+    sources:
+      - type: git
+        url: https://github.com/protocolbuffers/protobuf.git
+        commit: 43e1626812c1b543e56a7bec59dc09eb18248bd2
+        tag: v30.2
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/protocolbuffers/protobuf/releases/latest
+          tag-query: .tag_name
+          timestamp-query: .published_at
+          version-query: $tag | sub("^[vV]"; "")
+    cleanup:
+      - /bin
+
+  - name: qt6-grpc
+    buildsystem: cmake-ninja
+    post-install:
+      - ln -s /app/lib/*-linux-gnu/*.so* /app/lib/
+    sources:
+      - type: git
+        url: https://code.qt.io/qt/qtgrpc.git
+        tag: 6.10.0
+
+  - name: spirv-tools
+    buildsystem: cmake-ninja
+    sources:
+      - type: git
+        url: https://github.com/KhronosGroup/SPIRV-Tools.git
+        tag: v2025.4
+      - type: git
+        url: https://github.com/KhronosGroup/SPIRV-Headers.git
+        tag: vulkan-sdk-1.4.335.0
+        dest: external/spirv-headers
+    cleanup:
+      - /bin
+      - /include
+      - /lib
+
+  - name: QcmBackend
+    build-options:
+      append-path: /usr/lib/sdk/rust-stable/bin
+      env:
+        CARGO_HOME: /run/build/QcmBackend/cargo
+    buildsystem: simple
+    build-commands:
+      - cargo --offline fetch --manifest-path Cargo.toml --verbose
+      - cargo --offline build --release --verbose
+      - install -Dm755 ./target/release/QcmBackend -t /app/bin/
+    sources:
+      - type: git
+        url: https://github.com/hypengw/QcmBackend.git
+        commit: 850fda31f1e78f5223b96ccd679f67f102a21a13
+      - ./cargo-sources.json
+
+  - name: Plugin
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/bin/plugins
+      - cp -a qcm-ncm-plugin /app/bin/plugins/
+    sources:
+      - type: git
+        url: https://github.com/hypengw/qcm-ncm-plugin.git
+        commit: 3bac083e02d83b3966f3dbe31b68e02af01016ce
+        dest: qcm-ncm-plugin
+
   - name: Qcm
     buildsystem: cmake-ninja
+    build-options:
+      env:
+        CXXFLAGS: '-fno-builtin'
+      append-path: /usr/lib/sdk/llvm20/bin
+      prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
     config-opts:
       - -DCMAKE_BUILD_TYPE=RelWithDebInfo
       - -DQML_INSTALL_DIR=/app/lib/qml
+      - -DCMAKE_CXX_COMPILER=clang++
+      - -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/flatpak-provider.cmake
+      - -DCMAKE_MODULE_PATH=/run/build/Qcm/cmake
+      - -DQCM_BUILD_TESTS=OFF
+      - -DQML_MATERIAL_BUILD_TYPE=STATIC
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: f06ace0e7d13102503ffd1e645bd1a072e52195c
+        commit: 0773e9f6e466ae3a895287cca67e898ab6ce532e
+      - ./flaptak-source.json
+
