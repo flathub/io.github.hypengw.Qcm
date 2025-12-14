@@ -2,7 +2,7 @@ app-id: io.github.hypengw.Qcm
 runtime: org.kde.Platform
 runtime-version: '6.10'
 sdk: org.kde.Sdk
-sdk-extensions: 
+sdk-extensions:
   - org.freedesktop.Sdk.Extension.llvm20
   - org.freedesktop.Sdk.Extension.rust-stable
 command: Qcm
@@ -27,8 +27,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/protocolbuffers/protobuf.git
-        commit: 43e1626812c1b543e56a7bec59dc09eb18248bd2
-        tag: v30.2
+        commit: 7ccf2060af4cd13c44a8659d0999be6c7a98fcc1
+        tag: v33.2
         x-checker-data:
           type: json
           url: https://api.github.com/repos/protocolbuffers/protobuf/releases/latest
@@ -93,7 +93,7 @@ modules:
     buildsystem: cmake-ninja
     build-options:
       env:
-        CXXFLAGS: '-fno-builtin'
+        CXXFLAGS: -fno-builtin
       append-path: /usr/lib/sdk/llvm20/bin
       prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
     config-opts:
