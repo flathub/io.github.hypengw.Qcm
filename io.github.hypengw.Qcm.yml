@@ -107,6 +107,6 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: 0773e9f6e466ae3a895287cca67e898ab6ce532e
+        commit: dbee66eec377ced11efebef9288eb5a9c5dab771
       - ./flaptak-source.json
 
