@@ -3,7 +3,7 @@ runtime: org.kde.Platform
 runtime-version: '6.10'
 sdk: org.kde.Sdk
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.llvm20
+  - org.freedesktop.Sdk.Extension.llvm21
   - org.freedesktop.Sdk.Extension.rust-stable
 command: Qcm
 finish-args:
@@ -92,10 +92,8 @@ modules:
   - name: Qcm
     buildsystem: cmake-ninja
     build-options:
-      env:
-        CXXFLAGS: -fno-builtin
-      append-path: /usr/lib/sdk/llvm20/bin
-      prepend-ld-library-path: /usr/lib/sdk/llvm20/lib
+      append-path: /usr/lib/sdk/llvm21/bin
+      prepend-ld-library-path: /usr/lib/sdk/llvm21/lib
     config-opts:
       - -DCMAKE_BUILD_TYPE=RelWithDebInfo
       - -DQML_INSTALL_DIR=/app/lib/qml
