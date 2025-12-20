@@ -36,7 +36,7 @@ modules:
           timestamp-query: .published_at
           version-query: $tag | sub("^[vV]"; "")
     cleanup:
-      - /bin
+      - '*'
 
   - name: qt6-grpc
     buildsystem: cmake-ninja
@@ -58,9 +58,7 @@ modules:
         tag: vulkan-sdk-1.4.335.0
         dest: external/spirv-headers
     cleanup:
-      - /bin
-      - /include
-      - /lib
+      - '*'
 
   - name: QcmBackend
     build-options:
@@ -75,19 +73,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/QcmBackend.git
-        commit: 850fda31f1e78f5223b96ccd679f67f102a21a13
+        commit: 58611bbe8440b4710a4a0432386d5c3cc56e709e
       - ./cargo-sources.json
-
-  - name: Plugin
-    buildsystem: simple
-    build-commands:
-      - mkdir -p /app/bin/plugins
-      - cp -a qcm-ncm-plugin /app/bin/plugins/
-    sources:
-      - type: git
-        url: https://github.com/hypengw/qcm-ncm-plugin.git
-        commit: 3bac083e02d83b3966f3dbe31b68e02af01016ce
-        dest: qcm-ncm-plugin
 
   - name: Qcm
     buildsystem: cmake-ninja
@@ -107,4 +94,15 @@ modules:
         url: https://github.com/hypengw/Qcm.git
         commit: dbee66eec377ced11efebef9288eb5a9c5dab771
       - ./flaptak-source.json
+
+  - name: Plugin
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/bin/plugins
+      - cp -a qcm-ncm-plugin /app/bin/plugins/
+    sources:
+      - type: git
+        url: https://github.com/hypengw/qcm-ncm-plugin.git
+        commit: 3bac083e02d83b3966f3dbe31b68e02af01016ce
+        dest: qcm-ncm-plugin
 
