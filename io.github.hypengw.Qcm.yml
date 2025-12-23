@@ -73,7 +73,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/QcmBackend.git
-        commit: 58611bbe8440b4710a4a0432386d5c3cc56e709e
+        commit: aa678f662da1ff5c498869d9388e89f81db6156a
       - ./cargo-sources.json
 
   - name: Qcm
@@ -92,8 +92,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: dbee66eec377ced11efebef9288eb5a9c5dab771
-      - ./flaptak-source.json
+        commit: 9760efd2f2e58d51cd5932a49b1657450aa2baaf
+      - ./flaptak-sources.json
 
   - name: Plugin
     buildsystem: simple
