@@ -27,8 +27,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/protocolbuffers/protobuf.git
-        commit: edaa823d8b36a8656d7b2b9241b7d0bfe50af878
-        tag: v33.4
+        commit: e59364c38e10de3686a3305ff11fbfc59a10dbd8
+        tag: v35.0
         x-checker-data:
           type: json
           url: https://api.github.com/repos/protocolbuffers/protobuf/releases/latest
