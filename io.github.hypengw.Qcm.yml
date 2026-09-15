@@ -1,9 +1,9 @@
 app-id: io.github.hypengw.Qcm
 runtime: org.kde.Platform
-runtime-version: '6.10'
+runtime-version: '6.11'
 sdk: org.kde.Sdk
 sdk-extensions:
-  - org.freedesktop.Sdk.Extension.llvm21
+  - org.freedesktop.Sdk.Extension.llvm22
   - org.freedesktop.Sdk.Extension.rust-stable
 command: Qcm
 finish-args:
@@ -16,19 +16,26 @@ finish-args:
   - --talk-name=org.freedesktop.Notifications
   - --own-name=org.mpris.MediaPlayer2.Qcm
 
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /share/doc
+  - /share/man
+  - /share/zsh
+  - /share/bash-completion
 modules:
   - name: protobuf
     buildsystem: cmake-ninja
     builddir: true
     config-opts:
-      - -DCMAKE_BUILD_TYPE=None
+      - -DCMAKE_BUILD_TYPE=Release
       - -DBUILD_SHARED_LIBS=ON
       - -Dprotobuf_BUILD_TESTS=OFF
     sources:
       - type: git
         url: https://github.com/protocolbuffers/protobuf.git
-        commit: edaa823d8b36a8656d7b2b9241b7d0bfe50af878
-        tag: v33.4
+        commit: f377bfefc5e2cfab68b816903c25b23e091c439d
+        tag: v36.1
         x-checker-data:
           type: json
           url: https://api.github.com/repos/protocolbuffers/protobuf/releases/latest
@@ -44,8 +51,9 @@ modules:
       - ln -s /app/lib/*-linux-gnu/*.so* /app/lib/
     sources:
       - type: git
-        url: https://code.qt.io/qt/qtgrpc.git
-        tag: 6.10.0
+        url: https://github.com/qt/qtgrpc.git
+        tag: v6.11.1
+        commit: 246eb3e3f33bde5ae90bcc8fc1ee54b9381fc60a
 
   - name: spirv-tools
     buildsystem: cmake-ninja
@@ -53,47 +61,66 @@ modules:
       - type: git
         url: https://github.com/KhronosGroup/SPIRV-Tools.git
         tag: v2025.4
+        commit: 7f2d9ee926f98fc77a3ed1e1e0f113b8c9c49458
       - type: git
         url: https://github.com/KhronosGroup/SPIRV-Headers.git
         tag: vulkan-sdk-1.4.335.0
+        commit: b824a462d4256d720bebb40e78b9eb8f78bbb305
         dest: external/spirv-headers
     cleanup:
       - '*'
 
-  - name: QcmBackend
-    build-options:
-      append-path: /usr/lib/sdk/rust-stable/bin
-      env:
-        CARGO_HOME: /run/build/QcmBackend/cargo
+  - name: lito
     buildsystem: simple
     build-commands:
-      - cargo --offline fetch --manifest-path Cargo.toml --verbose
-      - cargo --offline build --release --verbose
-      - install -Dm755 ./target/release/QcmBackend -t /app/bin/
+      - cp -a bin share /app/
     sources:
-      - type: git
-        url: https://github.com/hypengw/QcmBackend.git
-        commit: 8d69528de10a980d351e847aab644da8ccb21ffc
-      - ./cargo-sources.json
+      - type: archive
+        url: https://github.com/litocpp/lito/releases/download/v0.8.1/lito-v0.8.1-linux-x86_64.tar.gz
+        sha256: 9bf2da37d2eed953b53995d9a6eb440d320b8e57007ee779d0800340cde47ab7
+        only-arches:
+          - x86_64
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/litocpp/lito/releases/latest
+          timestamp-query: .published_at
+          version-query: .tag_name | sub("^[vV]"; "")
+          url-query: '"https://github.com/litocpp/lito/releases/download/v" + $version
+            + "/lito-v" + $version + "-linux-x86_64.tar.gz"'
+      - type: archive
+        url: https://github.com/litocpp/lito/releases/download/v0.8.1/lito-v0.8.1-linux-aarch64.tar.gz
+        sha256: 1eb7392dade41c3b829648388c3337453b28535f49d65c61744230e5e0cc23a1
+        only-arches:
+          - aarch64
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/litocpp/lito/releases/latest
+          timestamp-query: .published_at
+          version-query: .tag_name | sub("^[vV]"; "")
+          url-query: '"https://github.com/litocpp/lito/releases/download/v" + $version
+            + "/lito-v" + $version + "-linux-aarch64.tar.gz"'
+    cleanup:
+      - '*'
 
   - name: Qcm
-    buildsystem: cmake-ninja
+    buildsystem: simple
     build-options:
-      append-path: /usr/lib/sdk/llvm21/bin
-      prepend-ld-library-path: /usr/lib/sdk/llvm21/lib
-    config-opts:
-      - -DCMAKE_BUILD_TYPE=RelWithDebInfo
-      - -DQML_INSTALL_DIR=/app/lib/qml
-      - -DCMAKE_CXX_COMPILER=clang++
-      - -DCMAKE_PROJECT_TOP_LEVEL_INCLUDES=cmake/flatpak-provider.cmake
-      - -DCMAKE_MODULE_PATH=/run/build/Qcm/cmake
-      - -DQCM_BUILD_TESTS=OFF
-      - -DQML_MATERIAL_BUILD_TYPE=STATIC
+      append-path: /usr/lib/sdk/llvm22/bin:/usr/lib/sdk/rust-stable/bin
+      prepend-ld-library-path: /usr/lib/sdk/llvm22/lib
+      env:
+        CARGO_HOME: /run/build/Qcm/cargo
+    build-commands:
+      - lito install -p qcm-app --profile relwithdebinfo --prefix /app
+        --source-bundle .lito/source-bundle --offline --locked
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: e1a7fe40cd4481ac11e522c06bde144f541f6494
-      - ./flaptak-sources.json
+        commit: 70a1c40a7c8aee66e6a0ffe98e5384cb8323de98
+        x-checker-data:
+          type: git
+          tag-pattern: ^v([\d.]+)$
+          is-main-source: true
+      - ./qcm-lito.json
 
   - name: Plugin
     buildsystem: simple
@@ -103,6 +130,9 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/qcm-ncm-plugin.git
-        commit: 3bac083e02d83b3966f3dbe31b68e02af01016ce
+        commit: 88aa48f86dee79a2b84b6a3d5c4e65d9f1833edb
+        tag: v0.1.0
         dest: qcm-ncm-plugin
-
+        x-checker-data:
+          type: git
+          tag-pattern: ^v([\d.]+)$
