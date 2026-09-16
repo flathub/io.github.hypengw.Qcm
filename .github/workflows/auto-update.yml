@@ -1,0 +1,115 @@
+name: auto-update
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  GIT_USER_NAME: github-actions[bot]
+  GIT_USER_EMAIL: github-actions[bot]@users.noreply.github.com
+  FLATPAK_ID: io.github.hypengw.Qcm
+
+jobs:
+  flatpak-external-data-checker:
+    name: check update
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - uses: docker://ghcr.io/flathub/flatpak-external-data-checker:latest
+        with:
+          args: --edit-only ${{ env.FLATPAK_ID }}.yml
+
+      - name: Check updated
+        id: is-updated
+        run: |
+          if git diff --quiet -- "${FLATPAK_ID}.yml"; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.is-updated.outputs.updated == 'true'
+        with:
+          python-version: "3.13"
+
+      - name: Regenerate source manifests
+        if: steps.is-updated.outputs.updated == 'true'
+        env:
+          UPSTREAM_DIR: ${{ runner.temp }}/Qcm
+          LITO_DIR: ${{ runner.temp }}/lito
+        run: |
+          python3 -m pip install "PyYAML>=6.0.2,<7"
+
+          readarray -t manifest_sources < <(python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          import yaml
+
+          manifest = yaml.safe_load(Path(f"{os.environ['FLATPAK_ID']}.yml").read_text())
+          qcm = next(item for item in manifest["modules"] if item["name"] == "Qcm")
+          qcm_source = next(
+              item
+              for item in qcm["sources"]
+              if isinstance(item, dict)
+              and item.get("type") == "git"
+              and item.get("url") == "https://github.com/hypengw/Qcm.git"
+          )
+          lito = next(item for item in manifest["modules"] if item["name"] == "lito")
+          lito_source = next(
+              item
+              for item in lito["sources"]
+              if isinstance(item, dict)
+              and item.get("type") == "archive"
+              and "x86_64" in item.get("only-arches", [])
+          )
+          print(qcm_source["commit"])
+          print(lito_source["url"])
+          print(lito_source["sha256"])
+          PY
+          )
+          source_commit="${manifest_sources[0]}"
+          lito_url="${manifest_sources[1]}"
+          lito_sha256="${manifest_sources[2]}"
+
+          git init "$UPSTREAM_DIR"
+          git -C "$UPSTREAM_DIR" remote add origin https://github.com/hypengw/Qcm.git
+          git -C "$UPSTREAM_DIR" fetch --depth 1 origin "$source_commit"
+          git -C "$UPSTREAM_DIR" checkout --detach FETCH_HEAD
+
+          lito_archive="${RUNNER_TEMP}/lito.tar.gz"
+          mkdir -p "$LITO_DIR"
+          curl --fail --location --retry 3 "$lito_url" --output "$lito_archive"
+          printf '%s  %s\n' "$lito_sha256" "$lito_archive" | sha256sum --check -
+          tar --extract --gzip --file "$lito_archive" --directory "$LITO_DIR" --strip-components=1
+          "$LITO_DIR/bin/lito" --version
+
+          "$LITO_DIR/bin/lito" \
+            -C "$UPSTREAM_DIR" \
+            --no-config \
+            lock export \
+            --format flatpak-sources \
+            --attach-cargo-lock Cargo.lock \
+            --output "$GITHUB_WORKSPACE/qcm-lito.json"
+
+      - name: Reset checker edits
+        run: git checkout -- "${FLATPAK_ID}.yml"
+
+      - name: Recheck and open PR
+        uses: docker://ghcr.io/flathub/flatpak-external-data-checker:latest
+        env:
+          GIT_AUTHOR_NAME: ${{ env.GIT_USER_NAME }}
+          GIT_COMMITTER_NAME: ${{ env.GIT_USER_NAME }}
+          GIT_AUTHOR_EMAIL: ${{ env.GIT_USER_EMAIL }}
+          GIT_COMMITTER_EMAIL: ${{ env.GIT_USER_EMAIL }}
+          EMAIL: ${{ env.GIT_USER_EMAIL }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --update --never-fork ${{ env.FLATPAK_ID }}.yml
