@@ -24,6 +24,8 @@ cleanup:
   - /share/zsh
   - /share/bash-completion
 modules:
+  - shared-modules/lua5.4/lua-5.4.json
+
   - name: protobuf
     buildsystem: cmake-ninja
     builddir: true
