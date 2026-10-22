@@ -20,6 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: master
+          submodules: true
 
       - uses: docker://ghcr.io/flathub/flatpak-external-data-checker:latest
         with:
@@ -47,14 +48,17 @@ jobs:
         run: |
           python3 -m pip install "PyYAML>=6.0.2,<7"
 
-          readarray -t manifest_sources < <(python3 - <<'PY'
+          manifest_sources_text=$(python3 - <<'PY'
           import os
           from pathlib import Path
 
           import yaml
 
           manifest = yaml.safe_load(Path(f"{os.environ['FLATPAK_ID']}.yml").read_text())
-          qcm = next(item for item in manifest["modules"] if item["name"] == "Qcm")
+          qcm = next(
+              item for item in manifest["modules"]
+              if isinstance(item, dict) and item.get("name") == "Qcm"
+          )
           qcm_source = next(
               item
               for item in qcm["sources"]
@@ -62,7 +66,10 @@ jobs:
               and item.get("type") == "git"
               and item.get("url") == "https://github.com/hypengw/Qcm.git"
           )
-          lito = next(item for item in manifest["modules"] if item["name"] == "lito")
+          lito = next(
+              item for item in manifest["modules"]
+              if isinstance(item, dict) and item.get("name") == "lito"
+          )
           lito_source = next(
               item
               for item in lito["sources"]
@@ -75,6 +82,7 @@ jobs:
           print(lito_source["sha256"])
           PY
           )
+          readarray -t manifest_sources <<< "$manifest_sources_text"
           source_commit="${manifest_sources[0]}"
           lito_url="${manifest_sources[1]}"
           lito_sha256="${manifest_sources[2]}"

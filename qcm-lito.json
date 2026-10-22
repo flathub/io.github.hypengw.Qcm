@@ -12,8 +12,8 @@
     "url": "https://github.com/hypengw/QExtra.git"
   },
   {
-    "commit": "f1464c52d42732acb1363122b9b1a2360fd505b3",
-    "dest": ".lito/source-bundle/v1/git/677c8e4e433958e1b5194ec4301e9f99c760f2f56aae6664b65e6276424e0cb5",
+    "commit": "107111f7c7819b57a5edc540ba781c5947025e90",
+    "dest": ".lito/source-bundle/v1/git/37f6718629648c3eebbf30d327ffeabad14360f7edf912e1f1310f55f9f0597d",
     "type": "git",
     "url": "https://github.com/hypengw/QmlMaterial.git"
   },
@@ -24,14 +24,14 @@
     "url": "https://github.com/hypengw/ncrequest.git"
   },
   {
-    "commit": "756437443d84905a027f115c75ec6ae6b19692e7",
-    "dest": ".lito/source-bundle/v1/git/ae428a7b7cbbfb5d3e52828e69bd383980b4062df55286ee89687319a05eccb9",
+    "commit": "0716fcc69dd67bb1d60384170ee9f0c3b92556ea",
+    "dest": ".lito/source-bundle/v1/git/d1a40a81ac9ee87287ef74cdd2c495c9e06235595ae0c993ae3da7c8842a1370",
     "type": "git",
     "url": "https://github.com/hypengw/wavsen.git"
   },
   {
-    "commit": "74b637693a36a7d8cc47c29f37dfc3370004667d",
-    "dest": ".lito/source-bundle/v1/git/9c3ed7231a294ab556aeccc0372a9efcbe31d029ec383a89fca90a68e02135a5",
+    "commit": "1f29d78faa0f22fc12dec22a85e9e421bf8cc122",
+    "dest": ".lito/source-bundle/v1/git/b377c5f17ba074077478931cf306ee9d5ca9669d9c7c5b7432a6de5b9d4672b5",
     "type": "git",
     "url": "https://github.com/ilqvya/random.git"
   },
