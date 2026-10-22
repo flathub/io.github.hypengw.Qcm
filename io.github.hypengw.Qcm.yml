@@ -117,12 +117,12 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: c0e796d9a4dbec3d154afcf3320ad63a632f26aa
+        commit: 169cfe4067fa769998ffdf43c32d61e3a481352a
         x-checker-data:
           type: git
           tag-pattern: ^v([\d.]+)$
           is-main-source: true
-        tag: v1.3.7
+        tag: v1.3.8
       - ./qcm-lito.json
 
   - name: Plugin
