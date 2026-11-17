@@ -104,7 +104,6 @@ jobs:
             --no-config \
             lock export \
             --format flatpak-sources \
-            --attach-cargo-lock Cargo.lock \
             --output "$GITHUB_WORKSPACE/qcm-lito.json"
 
       - name: Reset checker edits

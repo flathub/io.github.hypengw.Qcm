@@ -5,7 +5,7 @@ sdk: org.kde.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.llvm22
   - org.freedesktop.Sdk.Extension.rust-stable
-command: Qcm
+command: qcm
 finish-args:
   - --socket=fallback-x11
   - --socket=wayland
@@ -14,6 +14,7 @@ finish-args:
   - --device=dri
   - --socket=pulseaudio
   - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.kde.StatusNotifierWatcher
   - --own-name=org.mpris.MediaPlayer2.Qcm
 
 cleanup:
@@ -24,8 +25,6 @@ cleanup:
   - /share/zsh
   - /share/bash-completion
 modules:
-  - shared-modules/lua5.4/lua-5.4.json
-
   - name: protobuf
     buildsystem: cmake-ninja
     builddir: true
@@ -78,8 +77,8 @@ modules:
       - cp -a bin share /app/
     sources:
       - type: archive
-        url: https://github.com/litocpp/lito/releases/download/v0.8.8/lito-v0.8.8-linux-x86_64.tar.gz
-        sha256: d4c3d7548e44da0086b8f55901670a9ec31b4975d4713bef232cb0329a5e028d
+        url: https://github.com/litocpp/lito/releases/download/v0.8.9/lito-v0.8.9-linux-x86_64.tar.gz
+        sha256: 31884c0e853f644f4491bf3a58ee93a12d5513a9810cdeb0e00136cb87dbe610
         only-arches:
           - x86_64
         x-checker-data:
@@ -90,8 +89,8 @@ modules:
           url-query: '"https://github.com/litocpp/lito/releases/download/v" + $version
             + "/lito-v" + $version + "-linux-x86_64.tar.gz"'
       - type: archive
-        url: https://github.com/litocpp/lito/releases/download/v0.8.8/lito-v0.8.8-linux-aarch64.tar.gz
-        sha256: e01aa6483be7efedea884731fa9838b2e81a28ec8435488d4339c9aa4af33252
+        url: https://github.com/litocpp/lito/releases/download/v0.8.9/lito-v0.8.9-linux-aarch64.tar.gz
+        sha256: 9bbe75c495ff5b20a00d7eae9782d62d3df09b3e23d4c601d7c03a4378754415
         only-arches:
           - aarch64
         x-checker-data:
@@ -104,6 +103,32 @@ modules:
     cleanup:
       - '*'
 
+  - name: lua5
+    cleanup:
+      - '*'
+    no-autogen: true
+    make-args:
+      - "MYCFLAGS=-fPIC -DLUA_USE_LINUX"
+      - linux
+    make-install-args:
+      - INSTALL_TOP=/app
+    post-install:
+      - make INSTALL_TOP=/app pc > lua5.pc
+      - cat lua5.pc.in >> lua5.pc
+      - install -Dm644 lua5.pc $FLATPAK_DEST/lib/pkgconfig/lua5.5.pc
+    sources:
+      - type: archive
+        url: https://www.lua.org/ftp/lua-5.5.1.tar.gz
+        sha256: 1c4b4068d67061f2a2231ad2b5422e77acea1487ea9890f6320af614f4373dce
+        x-checker-data:
+          type: anitya
+          project-id: 1847
+          url-template: https://www.lua.org/ftp/lua-$version.tar.gz
+          versions:
+            <: '5.6'
+      - type: file
+        path: lua5.pc.in
+
   - name: Qcm
     buildsystem: simple
     build-options:
@@ -112,17 +137,16 @@ modules:
       env:
         CARGO_HOME: /run/build/Qcm/cargo
     build-commands:
-      - lito install -p qcm-app --profile relwithdebinfo --prefix /app --source-bundle
-        .lito/source-bundle --offline --locked
+      - lito install --profile relwithdebinfo --prefix /app --source-bundle .lito/source-bundle
+        --offline
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: 6253cf5252fe83f15acefe0a409126152446aa31
+        commit: 1e83ed217bc61af45e408683a488112d4a263e69
         x-checker-data:
           type: git
           tag-pattern: ^v([\d.]+)$
           is-main-source: true
-        tag: v1.3.9
       - ./qcm-lito.json
 
   - name: Plugin
@@ -133,8 +157,7 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/qcm-ncm-plugin.git
-        commit: 39bd7442464d93ecfcb6cd4e8c2fd3eefea7a0ad
-        tag: v0.1.1
+        commit: 11a6549fce914aa6c786491f2c8d3df87ff5b090
         dest: qcm-ncm-plugin
         x-checker-data:
           type: git
