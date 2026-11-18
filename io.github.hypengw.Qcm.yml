@@ -142,7 +142,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/Qcm.git
-        commit: 1e83ed217bc61af45e408683a488112d4a263e69
+        tag: v1.4.1
+        commit: b7d279230dd9cddf9340f2ec42e3783e6a5aac35
         x-checker-data:
           type: git
           tag-pattern: ^v([\d.]+)$
@@ -157,7 +158,8 @@ modules:
     sources:
       - type: git
         url: https://github.com/hypengw/qcm-ncm-plugin.git
-        commit: 11a6549fce914aa6c786491f2c8d3df87ff5b090
+        tag: v0.1.1
+        commit: 39bd7442464d93ecfcb6cd4e8c2fd3eefea7a0ad
         dest: qcm-ncm-plugin
         x-checker-data:
           type: git
